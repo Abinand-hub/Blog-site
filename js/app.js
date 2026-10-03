@@ -1,4 +1,4 @@
-// SYNAPSE TECH JOURNAL - 60 Articles Engine with Interactive Concept Links & Deep Knowledge Navigation
+// SYNAPSE TECH JOURNAL - Core Application Controller with SPA Browser History & Back Button Support
 
 class BlogApp {
   constructor() {
@@ -57,6 +57,7 @@ class BlogApp {
     this.renderHardwareDeals();
     this.updateBookmarkCountBadge();
     this.bindEvents();
+    this.initHistoryRouting();
   }
 
   initTheme() {
@@ -80,21 +81,97 @@ class BlogApp {
     this.showToast(`Switched to ${next.toUpperCase()} interface`);
   }
 
-  toggleMobileMenu(open) {
+  // ==========================================
+  // SPA Browser History & Back Button Support
+  // ==========================================
+  initHistoryRouting() {
+    // Handle Browser Back / Forward buttons
+    window.addEventListener('popstate', (e) => {
+      this.handleRouteFromHash();
+    });
+
+    // Check initial URL hash on page load
+    this.handleRouteFromHash(true);
+  }
+
+  handleRouteFromHash(isInitial = false) {
+    const hash = window.location.hash;
+
+    // Check what is currently open
+    const articleModal = document.getElementById('articleModal');
+    const conceptModal = document.getElementById('conceptModal');
+    const bookmarksDrawer = document.getElementById('bookmarksDrawer');
+    const mobileDrawer = document.getElementById('mobileDrawerOverlay');
+
+    if (!hash || hash === '#' || hash === '#home') {
+      // Close all overlays
+      if (conceptModal && conceptModal.classList.contains('active')) {
+        conceptModal.classList.remove('active');
+      }
+      if (articleModal && articleModal.classList.contains('active')) {
+        articleModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        this.stopAudioReader();
+      }
+      if (bookmarksDrawer && bookmarksDrawer.classList.contains('active')) {
+        bookmarksDrawer.classList.remove('active');
+      }
+      if (mobileDrawer && mobileDrawer.classList.contains('active')) {
+        mobileDrawer.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+      return;
+    }
+
+    if (hash.startsWith('#article=')) {
+      const articleId = hash.replace('#article=', '');
+      if (conceptModal && conceptModal.classList.contains('active')) {
+        conceptModal.classList.remove('active');
+      }
+      this.openArticleModal(articleId, false);
+      return;
+    }
+
+    if (hash.startsWith('#concept=')) {
+      const conceptKey = hash.replace('#concept=', '');
+      this.openConcept(conceptKey, false);
+      return;
+    }
+
+    if (hash.startsWith('#category=')) {
+      const cat = decodeURIComponent(hash.replace('#category=', ''));
+      if (conceptModal) conceptModal.classList.remove('active');
+      if (articleModal) {
+        articleModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+      this.setCategory(cat, false);
+      return;
+    }
+
+    if (hash === '#bookmarks') {
+      this.toggleBookmarksDrawer(true, false);
+      return;
+    }
+  }
+
+  toggleMobileMenu(open, updateHistory = true) {
     const overlay = document.getElementById('mobileDrawerOverlay');
     if (!overlay) return;
     const shouldOpen = open !== undefined ? open : !overlay.classList.contains('active');
     if (shouldOpen) {
       overlay.classList.add('active');
       document.body.style.overflow = 'hidden';
+      if (updateHistory) history.pushState({ type: 'mobileMenu' }, '', '#menu');
     } else {
       overlay.classList.remove('active');
       document.body.style.overflow = 'auto';
+      if (updateHistory && window.location.hash === '#menu') history.back();
     }
   }
 
   selectMobileCategory(cat) {
-    this.toggleMobileMenu(false);
+    this.toggleMobileMenu(false, false);
     this.setCategory(cat);
     window.scrollTo({ top: document.getElementById('mainArticlesSection').offsetTop - 60, behavior: 'smooth' });
   }
@@ -251,7 +328,7 @@ class BlogApp {
     }).join('');
   }
 
-  setCategory(categoryName) {
+  setCategory(categoryName, updateHistory = true) {
     this.currentCategory = categoryName;
 
     document.querySelectorAll('.nav-link').forEach(link => {
@@ -280,6 +357,11 @@ class BlogApp {
         item.classList.remove('active');
       }
     });
+
+    if (updateHistory) {
+      const hash = categoryName === 'All' ? '#home' : `#category=${encodeURIComponent(categoryName)}`;
+      history.pushState({ type: 'category', cat: categoryName }, '', hash);
+    }
 
     this.renderHeroShowcase();
     this.renderArticles();
@@ -346,7 +428,6 @@ class BlogApp {
     this.showToast("⚡ Endorsed research finding!");
   }
 
-  // Generate rich longform content with embedded concept links
   generateRichContent(article) {
     const conceptMap = [
       { key: "topological-qubits", label: "Topological Majorana Qubits" },
@@ -361,7 +442,6 @@ class BlogApp {
 
     let prose = article.content || `<p class="lead-paragraph">${article.summary}</p>`;
 
-    // If prose is short, enrich with comprehensive scientific chapters
     if (prose.length < 500) {
       prose = `
         <p class="lead-paragraph">${article.summary} This breakthrough represents a major technological inflection point, challenging historical assumptions regarding physical limits, compute scaling, and energy density.</p>
@@ -408,9 +488,8 @@ class BlogApp {
       `;
     }
 
-    // Concept Chips Bar
     const conceptChipsHTML = `
-      <div style="margin: 24px 0 16px 0; padding: 14px; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="margin: 24px 0 16px 0; padding: 14px; background: #0c1017; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
         <div style="font-family: var(--font-display); font-weight: 800; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
           🔬 Clickable Deep-Dive Concepts in this Dispatch:
         </div>
@@ -427,7 +506,7 @@ class BlogApp {
     return prose + conceptChipsHTML;
   }
 
-  openArticleModal(id) {
+  openArticleModal(id, updateHistory = true) {
     const article = this.articles.find(a => a.id === id);
     if (!article) return;
     this.currentArticle = article;
@@ -479,7 +558,6 @@ class BlogApp {
 
     content.innerHTML = this.generateRichContent(article) + galleryHTML;
 
-    // Render Related Articles
     const relatedArticles = this.articles
       .filter(a => a.id !== article.id && (a.category === article.category || a.score > 94))
       .slice(0, 3);
@@ -506,6 +584,10 @@ class BlogApp {
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 
+    if (updateHistory) {
+      history.pushState({ type: 'article', id: article.id }, '', `#article=${article.id}`);
+    }
+
     const container = document.getElementById('modalContainer');
     const progressBar = document.getElementById('readingProgressBar');
     container.onscroll = () => {
@@ -515,15 +597,17 @@ class BlogApp {
     };
   }
 
-  closeArticleModal() {
+  closeArticleModal(updateHistory = true) {
     const modal = document.getElementById('articleModal');
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
     this.stopAudioReader();
+    if (updateHistory && window.location.hash.startsWith('#article=')) {
+      history.back();
+    }
   }
 
-  // Interactive Concept Deep-Dive Modal
-  openConcept(conceptKey) {
+  openConcept(conceptKey, updateHistory = true) {
     const concept = typeof CONCEPT_GLOSSARY !== 'undefined' ? CONCEPT_GLOSSARY[conceptKey] : null;
     if (!concept) {
       this.showToast(`Concept Deep Dive: ${conceptKey}`);
@@ -557,18 +641,25 @@ class BlogApp {
     `;
 
     actionBtn.onclick = () => {
-      this.closeConceptModal();
+      this.closeConceptModal(false);
       if (concept.relatedArticleId) {
         this.openArticleModal(concept.relatedArticleId);
       }
     };
 
     modal.classList.add('active');
+
+    if (updateHistory) {
+      history.pushState({ type: 'concept', key: conceptKey }, '', `#concept=${conceptKey}`);
+    }
   }
 
-  closeConceptModal() {
+  closeConceptModal(updateHistory = true) {
     const modal = document.getElementById('conceptModal');
     if (modal) modal.classList.remove('active');
+    if (updateHistory && window.location.hash.startsWith('#concept=')) {
+      history.back();
+    }
   }
 
   toggleAudioReader() {
@@ -641,13 +732,15 @@ class BlogApp {
     this.showToast("Peer comment posted to dispatch! 💬");
   }
 
-  toggleBookmarksDrawer(open = true) {
+  toggleBookmarksDrawer(open = true, updateHistory = true) {
     const drawer = document.getElementById('bookmarksDrawer');
     if (open) {
       this.renderBookmarksDrawer();
       drawer.classList.add('active');
+      if (updateHistory) history.pushState({ type: 'bookmarks' }, '', '#bookmarks');
     } else {
       drawer.classList.remove('active');
+      if (updateHistory && window.location.hash === '#bookmarks') history.back();
     }
   }
 
@@ -667,7 +760,7 @@ class BlogApp {
     }
 
     container.innerHTML = bookmarkedArticles.map(a => `
-      <div class="leaderboard-item" style="cursor: pointer;" onclick="app.toggleBookmarksDrawer(false); app.openArticleModal('${a.id}');">
+      <div class="leaderboard-item" style="cursor: pointer;" onclick="app.toggleBookmarksDrawer(false, false); app.openArticleModal('${a.id}');">
         <img src="${a.image}" style="width: 44px; height: 44px; border-radius: 4px; object-fit: cover;" />
         <div style="flex: 1;">
           <h4 style="font-size: 0.8rem; line-height: 1.25; margin-bottom: 2px;">${a.title}</h4>
