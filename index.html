@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SYNAPSE | The Journal of Artificial Intelligence, Quantum & Future Tech</title>
+  <meta name="description" content="Synapse Tech Journal covers the frontier of artificial intelligence, fault-tolerant quantum computing, robotics, commercial fusion, spatial computing, and cybernetics.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+
+  <!-- Top Breaking News Ticker -->
+  <div class="ticker-bar">
+    <div class="container ticker-inner">
+      <div class="ticker-pill">
+        <span class="ticker-dot"></span> WIRE FEED
+      </div>
+      <div class="ticker-marquee">
+        <div class="ticker-track" id="tickerTrack">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Site Header & Nav (Compact 50px) -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <!-- Mobile Hamburger Button -->
+      <button class="mobile-nav-toggle" id="mobileNavToggle" onclick="app.toggleMobileMenu()" aria-label="Toggle navigation menu">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </button>
+
+      <!-- Brand Logo -->
+      <a href="#" class="brand" onclick="app.setCategory('All'); window.scrollTo({top:0, behavior:'smooth'}); return false;">
+        <div class="brand-icon">SY</div>
+        <div class="brand-title">SYNAPSE<span>//TECH</span></div>
+      </a>
+
+      <!-- Desktop Navigation Menu (Single Line, No Wrap) -->
+      <nav class="desktop-nav">
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="#" class="nav-link active" data-cat="All">All Feed</a></li>
+          <li><a href="#" class="nav-link" data-cat="Artificial Intelligence">AI & Neural</a></li>
+          <li><a href="#" class="nav-link" data-cat="Silicon & Hardware">Silicon</a></li>
+          <li><a href="#" class="nav-link" data-cat="Robotics & Cybernetics">Robotics</a></li>
+          <li><a href="#" class="nav-link" data-cat="Space & Energy">Space & Fusion</a></li>
+          <li><a href="#" class="nav-link" data-cat="Mobile & Gadgets">Spatial & Gadgets</a></li>
+          <li><a href="#" class="nav-link" data-cat="Future Culture">Future Culture</a></li>
+        </ul>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <!-- Bookmark Drawer Trigger -->
+        <button class="btn-icon" id="bookmarkDrawerBtn" title="Saved Dispatches" onclick="app.toggleBookmarksDrawer(true)">
+          📑
+          <span class="badge-count" id="bookmarkCountBadge">0</span>
+        </button>
+
+        <!-- Theme Switcher -->
+        <button class="btn-icon" id="themeToggleBtn" title="Toggle Theme" onclick="app.toggleTheme()">
+          ☀️
+        </button>
+
+        <!-- Create Story Action -->
+        <button class="btn-primary" onclick="app.openCreateModal()">
+          <span>+</span> Submit
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Slide-out Menu Drawer -->
+  <div class="mobile-drawer-overlay" id="mobileDrawerOverlay" onclick="if(event.target === this) app.toggleMobileMenu(false)">
+    <div class="mobile-drawer-panel">
+      <div class="mobile-drawer-header">
+        <div class="brand">
+          <div class="brand-icon">SY</div>
+          <div class="brand-title">SYNAPSE<span>//TECH</span></div>
+        </div>
+        <button class="btn-icon" onclick="app.toggleMobileMenu(false)">✕</button>
+      </div>
+
+      <div class="mobile-search-wrap">
+        <input type="text" id="mobileSearchField" class="search-field" style="width: 100%;" placeholder="Search 60+ dispatches...">
+      </div>
+
+      <div class="mobile-nav-list">
+        <div class="mobile-nav-item active" data-mobile-cat="All" onclick="app.selectMobileCategory('All')">
+          <span>🌐 All Dispatches</span>
+          <span class="mobile-cat-count">60</span>
+        </div>
+        <div class="mobile-nav-item" data-mobile-cat="Artificial Intelligence" onclick="app.selectMobileCategory('Artificial Intelligence')">
+          <span>🧠 AI & Neural</span>
+          <span class="mobile-cat-count">10</span>
+        </div>
+        <div class="mobile-nav-item" data-mobile-cat="Silicon & Hardware" onclick="app.selectMobileCategory('Silicon & Hardware')">
+          <span>🔬 Silicon & Quantum</span>
+          <span class="mobile-cat-count">10</span>
+        </div>
+        <div class="mobile-nav-item" data-mobile-cat="Robotics & Cybernetics" onclick="app.selectMobileCategory('Robotics & Cybernetics')">
+          <span>🤖 Robotics & Cybernetics</span>
+          <span class="mobile-cat-count">10</span>
+        </div>
+        <div class="mobile-nav-item" data-mobile-cat="Space & Energy" onclick="app.selectMobileCategory('Space & Energy')">
+          <span>🛰️ Space & Fusion</span>
+          <span class="mobile-cat-count">10</span>
+        </div>
+        <div class="mobile-nav-item" data-mobile-cat="Mobile & Gadgets" onclick="app.selectMobileCategory('Mobile & Gadgets')">
+          <span>👓 Spatial & Gadgets</span>
+          <span class="mobile-cat-count">10</span>
+        </div>
+        <div class="mobile-nav-item" data-mobile-cat="Future Culture" onclick="app.selectMobileCategory('Future Culture')">
+          <span>🌐 Future Culture</span>
+          <span class="mobile-cat-count">10</span>
+        </div>
+      </div>
+
+      <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
+        <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="app.toggleMobileMenu(false); app.openCreateModal();">
+          + Submit Dispatch
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Magazine Showcase -->
+  <section class="hero-showcase">
+    <div class="container">
+      <div class="hero-grid">
+        <!-- Main Lead Story -->
+        <div class="hero-lead-card" id="heroLeadCard">
+          <!-- Populated dynamically by JS -->
+        </div>
+
+        <!-- Secondary Highlights -->
+        <div class="hero-sub-grid" id="heroSubGrid">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter & Live Search Toolbar -->
+  <section class="filter-section">
+    <div class="container">
+      <div class="filter-bar-inner">
+        <!-- Category Filter Pills -->
+        <div class="category-pills" id="categoryPillsContainer">
+          <button class="cat-pill active" data-category="All">All (60)</button>
+          <button class="cat-pill" data-category="Artificial Intelligence">AI & Neural (10)</button>
+          <button class="cat-pill" data-category="Silicon & Hardware">Silicon (10)</button>
+          <button class="cat-pill" data-category="Robotics & Cybernetics">Robotics (10)</button>
+          <button class="cat-pill" data-category="Space & Energy">Space & Fusion (10)</button>
+          <button class="cat-pill" data-category="Mobile & Gadgets">Spatial & Gadgets (10)</button>
+          <button class="cat-pill" data-category="Future Culture">Culture (10)</button>
+        </div>
+
+        <!-- Instant Search & Sorting -->
+        <div class="search-sort-box">
+          <div class="search-input-wrapper">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input type="text" id="searchField" class="search-field" placeholder="Search 60+ articles...">
+          </div>
+
+          <select id="sortSelect" class="sort-select">
+            <option value="latest">Latest</option>
+            <option value="rated">Highest Impact</option>
+            <option value="popular">Most Liked</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Layout (Grid + Sidebar) -->
+  <main class="container main-layout" id="mainArticlesSection">
+    <!-- Left Feed Section -->
+    <section>
+      <div class="section-title-wrap">
+        <h2 class="section-title" id="feedTitleHeading">Frontier Intelligence Feed</h2>
+        <span id="articleResultCount" style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 700;">Showing 60 dispatches</span>
+      </div>
+
+      <div class="articles-feed-grid" id="articlesFeedGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Right Sidebar Widgets -->
+    <aside class="sidebar">
+      <!-- Frontier Tech Index -->
+      <div class="widget-card">
+        <div class="widget-header">
+          <h3 class="widget-title">🏆 Frontier Tech Index</h3>
+        </div>
+        <div class="leaderboard-list" id="leaderboardList">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Lab Gear & Hardware Spotlight -->
+      <div class="widget-card">
+        <div class="widget-header">
+          <h3 class="widget-title">⚡ Lab Gear & Accelerator Deals</h3>
+        </div>
+        <div id="dealsList">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Interactive Community Poll -->
+      <div class="widget-card">
+        <div class="widget-header">
+          <h3 class="widget-title">📊 Technology Consensus Poll</h3>
+        </div>
+        <div class="poll-question">Which technological breakthrough will achieve commercial mass adoption first?</div>
+        <div class="poll-option" onclick="app.votePoll(0)">
+          <div class="poll-bar"></div>
+          <div class="poll-text">
+            <span>Room-Temp Superconductors</span>
+            <span>68%</span>
+          </div>
+        </div>
+        <div class="poll-option" onclick="app.votePoll(1)">
+          <div class="poll-bar"></div>
+          <div class="poll-text">
+            <span>Humanoid Factory Labor</span>
+            <span>22%</span>
+          </div>
+        </div>
+        <div class="poll-option" onclick="app.votePoll(2)">
+          <div class="poll-bar"></div>
+          <div class="poll-text">
+            <span>Commercial Fusion Power</span>
+            <span>10%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIP Synapse Tech Newsletter -->
+      <div class="widget-card newsletter-card">
+        <h3>SYNAPSE QUANTUM WIRE</h3>
+        <p>Receive exclusive executive briefings on quantum compute, autonomous agents, and silicon physics every morning.</p>
+        <form class="newsletter-form" id="newsletterForm">
+          <input type="email" id="newsletterEmail" class="newsletter-input" placeholder="Enter your work email address" required>
+          <button type="submit" class="btn-primary" style="justify-content: center;">Subscribe Free</button>
+        </form>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Full Article Reader Modal -->
+  <div class="modal-overlay" id="articleModal" onclick="if(event.target === this) app.closeArticleModal()">
+    <div class="modal-container" id="modalContainer">
+      <div class="reading-progress-bar" id="readingProgressBar"></div>
+      <button class="modal-close-btn" onclick="app.closeArticleModal()" title="Close story">✕</button>
+
+      <div class="modal-header-hero">
+        <img id="modalHeroImg" src="" alt="Story visual">
+        <div class="hero-overlay"></div>
+      </div>
+
+      <div class="modal-body-content">
+        <div class="card-badge-row">
+          <span class="badge-tag" id="modalCategoryBadge">Artificial Intelligence</span>
+          <span class="badge-score-pill" id="modalScorePill">★ IMPACT 98/100</span>
+        </div>
+
+        <h1 class="article-full-title" id="modalTitle">Article Title</h1>
+        <p class="article-lead" id="modalSubtitle">Article Lead Subtitle</p>
+
+        <!-- Meta info -->
+        <div class="meta-row" style="margin-bottom: 20px;">
+          <div class="author-chip">
+            <img id="modalAuthorAvatar" src="" alt="" class="author-avatar">
+            <div>
+              <div id="modalAuthorName" style="font-weight: 700; color: var(--text-main);">Dr. Aris Thorne</div>
+              <div id="modalAuthorRole" style="font-size: 0.75rem; color: var(--text-dim);">Chief Physics Analyst</div>
+            </div>
+          </div>
+          <span>•</span>
+          <span id="modalDate">October 2, 2026</span>
+          <span>•</span>
+          <span id="modalReadTime">8 min read</span>
+        </div>
+
+        <!-- Audio Reader Simulator -->
+        <div class="audio-reader-box">
+          <div class="audio-info">
+            <button class="audio-play-btn" id="audioPlayBtn" onclick="app.toggleAudioReader()">▶</button>
+            <span id="audioStatusText">Listen to this briefing (AI Neural Voice)</span>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 700;">SYNTHETIC AUDIO</span>
+        </div>
+
+        <!-- Dynamic Prose Content & Interactive In-Text Concept Links -->
+        <div class="article-prose" id="modalArticleContent">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- Interactive Reactions -->
+        <div class="reactions-bar">
+          <span style="font-weight: 700; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Evaluate Research Impact:</span>
+          <button class="reaction-btn" onclick="app.addReaction('⚡ Revolutionary')">⚡ Revolutionary</button>
+          <button class="reaction-btn" onclick="app.addReaction('💡 Insightful')">💡 Insightful</button>
+          <button class="reaction-btn" onclick="app.addReaction('🔬 Peer-Verified')">🔬 Peer-Verified</button>
+          <button class="reaction-btn" onclick="app.addReaction('⚠️ Skeptical')">⚠️ Skeptical</button>
+        </div>
+
+        <!-- Related Research Dispatches -->
+        <div id="modalRelatedSection" style="margin: 28px 0; border-top: 1px solid var(--border-subtle); padding-top: 20px;">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- Live Comments Section -->
+        <div class="comments-section">
+          <h3 style="font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 14px;">Researcher & Community Dialogue</h3>
+          <div class="comment-input-box">
+            <input type="text" id="commentInput" class="comment-input" placeholder="Join the discussion... (press post)">
+            <button class="btn-primary" onclick="app.postComment()">Post</button>
+          </div>
+          <div class="comments-list" id="modalCommentsList">
+            <!-- Comments injected here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Concept Deep-Dive Modal (When in-text link is clicked) -->
+  <div class="modal-overlay" id="conceptModal" style="z-index: 1100;" onclick="if(event.target === this) app.closeConceptModal()">
+    <div class="modal-container" style="max-width: 650px;">
+      <button class="modal-close-btn" onclick="app.closeConceptModal()" title="Close concept">✕</button>
+      <div style="position: relative; height: 180px; overflow: hidden; border-radius: var(--radius-xl) var(--radius-xl) 0 0;">
+        <img id="conceptModalImg" src="" style="width: 100%; height: 100%; object-fit: cover;" alt="Concept Illustration" />
+        <div class="hero-overlay"></div>
+        <div style="position: absolute; bottom: 14px; left: 20px; z-index: 2;">
+          <span class="badge-tag" id="conceptModalBadge">DEEP DIVE CONCEPT</span>
+          <h2 id="conceptModalTitle" style="font-family: var(--font-heading); font-size: 1.4rem; color: #fff; margin-top: 4px;">Concept Term</h2>
+        </div>
+      </div>
+      <div style="padding: 24px;">
+        <h4 style="font-family: var(--font-display); font-size: 0.9rem; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 6px;">
+          🔬 Technical Definition & Overview
+        </h4>
+        <p id="conceptModalSummary" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;"></p>
+
+        <h4 style="font-family: var(--font-display); font-size: 0.9rem; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 6px;">
+          ⚙️ Physics & Engineering Mechanism
+        </h4>
+        <p id="conceptModalMechanism" style="font-size: 0.88rem; color: var(--text-main); line-height: 1.6; margin-bottom: 18px;"></p>
+
+        <div id="conceptModalMetrics" style="margin-bottom: 20px;"></div>
+
+        <button id="conceptModalActionBtn" class="btn-primary" style="width: 100%; justify-content: center; padding: 10px;">
+          Read Full Research Dispatch on this Topic →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bookmarks Slide-in Drawer -->
+  <div class="drawer-overlay" id="bookmarksDrawer" onclick="if(event.target === this) app.toggleBookmarksDrawer(false)">
+    <div class="drawer-panel">
+      <div class="drawer-header">
+        <h3 style="font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+          📑 Saved Briefings
+        </h3>
+        <button class="btn-icon" onclick="app.toggleBookmarksDrawer(false)">✕</button>
+      </div>
+      <div class="drawer-items" id="drawerBookmarkList">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Story Modal Form -->
+  <div class="modal-overlay" id="createModal" onclick="if(event.target === this) app.closeCreateModal()">
+    <div class="modal-container" style="max-width: 600px;">
+      <button class="modal-close-btn" onclick="app.closeCreateModal()">✕</button>
+      <div style="padding: 28px;">
+        <h2 style="font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; color: var(--accent-cyan);">
+          + Submit Research Dispatch
+        </h2>
+        <form onsubmit="app.handleCreateArticle(event)">
+          <div class="form-group">
+            <label class="form-label">Headline / Title</label>
+            <input type="text" id="newTitle" class="form-control" placeholder="e.g. Breakthrough in Room-Temperature Superconductors" required>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label">Primary Domain</label>
+              <select id="newCategory" class="form-control">
+                <option value="Artificial Intelligence">Artificial Intelligence</option>
+                <option value="Silicon & Hardware">Silicon & Hardware</option>
+                <option value="Robotics & Cybernetics">Robotics & Cybernetics</option>
+                <option value="Space & Energy">Space & Energy</option>
+                <option value="Mobile & Gadgets">Mobile & Gadgets</option>
+                <option value="Future Culture">Future Culture</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Impact Score (1-100)</label>
+              <input type="number" id="newScore" class="form-control" min="1" max="100" placeholder="e.g. 96">
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label">Tag / Sector</label>
+              <input type="text" id="newTag" class="form-control" placeholder="e.g. AI / Photonics">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Author / Researcher</label>
+              <input type="text" id="newAuthor" class="form-control" placeholder="e.g. Dr. Jane Doe">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hero Image URL</label>
+            <input type="text" id="newImage" class="form-control" placeholder="https://images.unsplash.com/... or local image URL">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Executive Abstract</label>
+            <input type="text" id="newSummary" class="form-control" placeholder="A concise 1-2 sentence executive summary" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full Research Text</label>
+            <textarea id="newContent" class="form-control" rows="4" placeholder="Document the experimental methodology and findings..." required></textarea>
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+            Publish to Synapse Network
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="brand" style="margin-bottom: 12px;">
+            <div class="brand-icon">SY</div>
+            <div class="brand-title">SYNAPSE<span>//TECH</span></div>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5;">
+            Synapse Tech Journal is the global open-access publication for quantum physics breakthroughs, sovereign AI compute, robotics, and clean fusion technologies.
+          </p>
+        </div>
+        <div class="footer-col">
+          <h4>Frontier Research</h4>
+          <ul class="footer-links">
+            <li><a href="#" onclick="app.setCategory('Artificial Intelligence'); return false;">Neural Models</a></li>
+            <li><a href="#" onclick="app.setCategory('Silicon & Hardware'); return false;">Quantum Transistors</a></li>
+            <li><a href="#" onclick="app.setCategory('Robotics & Cybernetics'); return false;">Humanoids</a></li>
+            <li><a href="#" onclick="app.setCategory('Space & Energy'); return false;">Commercial Fusion</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Hardware Lab</h4>
+          <ul class="footer-links">
+            <li><a href="#">Supercomputer Benchmarks</a></li>
+            <li><a href="#">Backside Power Delivery</a></li>
+            <li><a href="#">Optical Interconnects</a></li>
+            <li><a href="#">Solid-State Batteries</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Ethics & Open Science</h4>
+          <p style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 8px;">
+            All laboratory benchmarks are reproduced on open-access hardware testbeds.
+          </p>
+          <div style="font-size: 0.8rem; color: var(--accent-cyan);">
+            ● Global Research Mesh: 60 Dispatches Online
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 Synapse Tech Journal. All 60 dispatches open-access.</div>
+        <div style="display: flex; gap: 16px;">
+          <a href="#" style="color: var(--text-dim); text-decoration: none;">Privacy</a>
+          <a href="#" style="color: var(--text-dim); text-decoration: none;">Peer Review</a>
+          <a href="#" style="color: var(--text-dim); text-decoration: none;">Submissions</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/glossary.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
